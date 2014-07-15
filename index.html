@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
+    <script src="//vjs.zencdn.net/4.6/video.js"></script>
+  </head>
+  <body>
+    <div class = "content">
+      <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="640" height="264"></video>
+      <div class = "playlistControl" style="height:75px; margin-top:10px;"></div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/scripts/videojs-playlists.js"></script>
+    <script src="/scripts/videojs-playlist-loader.js"></script>
+
+    <script>
+      var player = videojs('video');
+
+      player.mockCmsPlaylistLoader({
+        initialVideo: {
+          src : [
+            'http://video-js.zencoder.com/oceans-clip.mp4',
+            'http://video-js.zencoder.com/oceans-clip.webm',
+            'http://video-js.zencoder.com/oceans-clip.ogv'
+            ],
+          poster: 'http://video-js.zencoder.com/oceans-clip.png',
+          title : 'Starting Video',
+          id: '1234'
+        },
+        playlistDivClass: 'playlistControl',
+        socialAccountId: 'oshin',
+        accountId: 'test',
+        playlistId: 'favorites'
+      });
+    </script>
+  </body>
+</html>
