@@ -5,6 +5,7 @@
   </head>
   <body>
     <button id="loadFavorites" onclick="loadFavorites()">Load Playlist</button>
+    <button id="addToFavorites" onclick="addToFavorites()">Add this page's video to favorites</button>
     <div class = "content">
       <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="640" height="264"></video>
       <div class = "playlistControl" style="height:75px; margin-top:10px;"></div>
@@ -17,14 +18,7 @@
     <script>
       var
         player = videojs('video'),
-        loadFavorites = function() {
-          player.getPlaylist('demouser', 'demoPlaylist', function(error, playlist) {
-            player.setPlaylist('demoPlaylist');
-          });
-        };
-
-      player.mockCmsPlaylistLoader({
-        initialVideo: {
+        playerVideo = {
           src : [
             'http://video-js.zencoder.com/oceans-clip.mp4',
             'http://video-js.zencoder.com/oceans-clip.webm',
@@ -34,6 +28,21 @@
           title : 'Starting Video',
           id: '1234'
         },
+
+        loadFavorites = function() {
+          player.getPlaylist('demouser', 'demoPlaylist', function(error, playlist) {
+            player.setPlaylist('demoPlaylist');
+          });
+        };
+
+        addToFavorites = function() {
+          player.addVideoToPlaylist('demouser', 'demoPlaylist', playerVideo, function(error, playlistData) {
+            loadFavorites();
+          });
+        };
+
+      player.mockCmsPlaylistLoader({
+        initialVideo: playerVideo,
         playlistDivClass: 'playlistControl',
         socialAccountId: 'demouser',
         accountId: 'test',
