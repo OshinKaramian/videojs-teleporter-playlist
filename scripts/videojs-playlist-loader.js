@@ -10,6 +10,7 @@
 
   videojs.plugin('mockCmsPlaylistLoader', function(options) {
     var player = this,
+    playlistCmsBaseUrl = 'http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/',
     playlistEnabled = false,
     startingPlaylist = [options.initialVideo],
     currentPlaylist = startingPlaylist;
@@ -19,7 +20,7 @@
 
     // API Methods (could probably be split to a seperate file)
     videojs.Player.prototype.getPlaylist = function(user, playlist, callback) {
-      $.getJSON('http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/' + user + '/playlist/' + playlist)
+      $.getJSON(playlistCmsBaseUrl + user + '/playlist/' + playlist)
         .done(function(playlistData) {
           playlists[playlist] = playlistData;
           callback(null, playlistData);
@@ -40,10 +41,19 @@
       drawUi(currentPlaylist);
     };
 
-    videojs.Player.prototype.addVideoToPlaylist = function(video, playlist) {
+    videojs.Player.prototype.addVideoToPlaylist = function(user, playlist, video, callback) {
+      $.post(playlistCmsBaseUrl + user + '/playlist/' + playlist, JSON.stringify(video))
+        .done(function(playlistData) {
+          playlists[playlist] = playlistData;
+          callback(null, playlistData);
+        })
+        .fail (function(jqxhr, textStatus, error) {
+          var err = textStatus + ", " + error;
+          callback( "Request for intial playlist data failed: " + err);
+        });
     };
 
-    videojs.Player.prototype.deleteVideoFromPlaylist = function(video, playlist) {
+    videojs.Player.prototype.deleteVideoFromPlaylist = function(user, video, playlist, callback) {
     };
     // End of API Methods
 
