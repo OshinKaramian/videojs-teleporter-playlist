@@ -38,7 +38,12 @@
         }
       });
       currentPlaylist = playlists[playlist];
+      console.log(currentPlaylist);
       drawUi(currentPlaylist);
+    };
+
+    videojs.Player.prototype.currentPlaylist = function() {
+      return currentPlaylist;
     };
 
     videojs.Player.prototype.addVideoToPlaylist = function(user, playlist, video, callback) {

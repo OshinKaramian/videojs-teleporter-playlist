@@ -126,6 +126,10 @@ function playList(options,arg){
   }
 }
 
+videojs.Player.prototype.currentIndex = function(){
+  return this.pl.current;
+};
+
 videojs.Player.prototype.next = function(){
   this.pl._nextPrev('next');
   return this;

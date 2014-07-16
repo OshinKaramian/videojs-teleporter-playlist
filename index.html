@@ -1,19 +1,22 @@
 <html>
   <head>
     <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
+    <link href="/css/videojs-overlay.css" rel="stylesheet">
+    <link href="/css/player.css" rel="stylesheet">
     <script src="//vjs.zencdn.net/4.6/video.js"></script>
   </head>
   <body>
     <button id="loadFavorites" onclick="loadFavorites()">Load Playlist</button>
     <button id="addToFavorites" onclick="addToFavorites()">Add this page's video to favorites</button>
-    <div class = "content">
+    <div class ="content">
       <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="640" height="264"></video>
-      <div class = "playlistControl" style="height:75px; margin-top:10px;"></div>
+      <div class="playlistControl" style="height:75px; margin-top:10px;"></div>
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="/scripts/videojs-playlists.js"></script>
     <script src="/scripts/videojs-playlist-loader.js"></script>
+    <script src="/scripts/videojs-overlay.min.js"></script>
 
     <script>
       var
@@ -28,17 +31,24 @@
           title : 'Starting Video',
           id: '1234'
         },
-
+        
         loadFavorites = function() {
           player.getPlaylist('demouser', 'demoPlaylist', function(error, playlist) {
             player.setPlaylist('demoPlaylist');
           });
-        };
+        },
 
         addToFavorites = function() {
           player.addVideoToPlaylist('demouser', 'demoPlaylist', playerVideo, function(error, playlistData) {
             loadFavorites();
           });
+        },
+
+        removeAllOverlays = function() {
+          var overlays = document.querySelectorAll(".vjs-overlay");
+          for (var i = 0, length = overlays.length; i < length; i++) {
+            overlays[i].remove();
+          }
         };
 
       player.mockCmsPlaylistLoader({
@@ -47,6 +57,36 @@
         socialAccountId: 'demouser',
         accountId: 'test',
         playlistId: 'demoPlaylist'
+      });
+
+      player.on('loadedmetadata', function() {
+        var 
+          overlays = [],
+          currentVideo = player.currentPlaylist()[player.currentIndex()],
+          nextVideo = player.currentPlaylist()[player.currentIndex()+1];
+
+        removeAllOverlays();
+        if (currentVideo) {
+          currentOverlay = {
+            start: 'pause',
+            end: 'playing',
+            content: '<span class="overlayTextTitle">Now Playing: </span><span class="overlayTextVideo">' + currentVideo.title + '</span>',
+            align: 'top-left'
+          };
+          overlays.push(currentOverlay);
+        }
+        if (nextVideo) {
+          nextOverlay = {
+            start: 'pause',
+            end: 'playing',
+            content: '<span class="overlayTextTitle">next in queue: </span><span class="overlayTextVideo">' + nextVideo.title + '</span>',
+            align: 'top-right'
+          };
+          overlays.push(nextOverlay);
+        }
+        player.overlay({
+          overlays: overlays
+        });
       });
     </script>
   </body>
