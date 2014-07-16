@@ -4,6 +4,7 @@
     <script src="//vjs.zencdn.net/4.6/video.js"></script>
   </head>
   <body>
+    <button id="loadFavorites" onclick="loadFavorites()">Load Playlist</button>
     <div class = "content">
       <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="640" height="264"></video>
       <div class = "playlistControl" style="height:75px; margin-top:10px;"></div>
@@ -14,7 +15,13 @@
     <script src="/scripts/videojs-playlist-loader.js"></script>
 
     <script>
-      var player = videojs('video');
+      var
+        player = videojs('video'),
+        loadFavorites = function() {
+          player.getPlaylist('demouser', 'demoPlaylist', function(error, playlist) {
+            player.setPlaylist('demoPlaylist');
+          });
+        };
 
       player.mockCmsPlaylistLoader({
         initialVideo: {
@@ -28,9 +35,9 @@
           id: '1234'
         },
         playlistDivClass: 'playlistControl',
-        socialAccountId: 'oshin',
+        socialAccountId: 'demouser',
         accountId: 'test',
-        playlistId: 'favorites'
+        playlistId: 'demoPlaylist'
       });
     </script>
   </body>

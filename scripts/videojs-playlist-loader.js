@@ -1,38 +1,4 @@
 (function($){
-  //var initialSource = $('video source');
-  var baseVideos = [
-    {
-      src : [
-        'http://stream.flowplayer.org/bauhaus/624x260.webm',
-        'http://stream.flowplayer.org/bauhaus/624x260.mp4',
-        'http://stream.flowplayer.org/bauhaus/624x260.ogv'
-      ],
-      poster : 'http://flowplayer.org/media/img/demos/minimalist.jpg',
-      title : 'Video 1',
-      id: 'abc'
-    },
-    {
-      src : [
-        'http://stream.flowplayer.org/night3/640x360.webm',
-        'http://stream.flowplayer.org/night3/640x360.mp4',
-        'http://stream.flowplayer.org/night3/640x360.ogv'
-      ],
-      poster : 'http://flowplayer.org/media/img/demos/playlist/railway_station.jpg',
-      title : 'Video 2',
-      id: 'd'
-    },
-    {
-      src : [
-        'http://stream.flowplayer.org/functional/624x260.webm',
-        'http://stream.flowplayer.org/functional/624x260.mp4',
-        'http://stream.flowplayer.org/functional/624x260.ogv'
-      ],
-      poster : 'http://flowplayer.org/media/img/demos/functional.jpg',
-      title : 'Video 3',
-      id: 'ef'
-    }
-  ];
-
   /* Sets up calls to pull mock CMS player down and put its data into the VideoPlaylist
    * object.
    *
@@ -45,80 +11,72 @@
   videojs.plugin('mockCmsPlaylistLoader', function(options) {
     var player = this,
     playlistEnabled = false,
-    startingPlaylist = options.initialVideo,
+    startingPlaylist = [options.initialVideo],
     currentPlaylist = startingPlaylist;
-
+    playlists = {
+      startingPlaylist: startingPlaylist
+    };
 
     // API Methods (could probably be split to a seperate file)
-    videojs.Player.prototype.getPlaylist = function(playlistId) {
-      return baseVideos;
+    videojs.Player.prototype.getPlaylist = function(user, playlist, callback) {
+      $.getJSON('http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/' + user + '/playlist/' + playlist)
+        .done(function(playlistData) {
+          playlists[playlist] = playlistData;
+          callback(null, playlistData);
+        })
+        .fail (function(jqxhr, textStatus, error) {
+          var err = textStatus + ", " + error;
+          callback( "Request for intial playlist data failed: " + err);
+        });
     };
 
-    videojs.Player.prototype.addVideoToPlaylist = function(video, playlistId) {
+    videojs.Player.prototype.setPlaylist = function(playlist, video) {
+      player.playList(playlists[playlist], {
+        getVideoSource: function(vid, cb) {
+          cb(vid.src, vid.poster);
+        }
+      });
+      currentPlaylist = playlists[playlist];
+      drawUi(currentPlaylist);
     };
 
-    videojs.Player.prototype.deleteVideoFromPlaylist = function(video, playlistId) {
+    videojs.Player.prototype.addVideoToPlaylist = function(video, playlist) {
+    };
+
+    videojs.Player.prototype.deleteVideoFromPlaylist = function(video, playlist) {
     };
     // End of API Methods
 
     // Handles drawing of the playlist UI (clickable thumbnails);
-    var drawUi = function() {
+    var drawUi = function(playlist) {
       var playlistContainer = $('.' + options.playlistDivClass);
+      playlistContainer.empty();
       playlistContainer.width = "100%";
-
-      // Draw ui for startVideo
-      var startVideoDiv = $(document.createElement("div"));
-      startVideoDiv.addClass('current-playing-thumbnail');
-      startVideoDiv.css({'float':'left', 'margin-right':'15px'});
-      startVideoDiv.append('<img height="100%" src="' + startingPlaylist.poster  + '"/>')
-
-      playlistContainer.append(startVideoDiv);
-
       // Build it out for the other videos
-      $.each(player.getPlaylist(options.playlistId), function(k, video) {
+      $.each(playlist, function(k, video) {
         var playlistVideoDiv = $(document.createElement("div"));
-
         playlistVideoDiv.addClass('playlist-video-thumbnail');
         playlistVideoDiv.data('videoObject' , video);
         playlistVideoDiv.css({'float':'left'});
-        playlistVideoDiv.append('<img height="100%" src="' + video.poster  + '"/>')
+        playlistVideoDiv.append('<img height="100%" src="' + video.poster  + '"/>');
         playlistContainer.append(playlistVideoDiv);
       });
-    },
-
-    // This allows us to switch between different playlists
-    loadPlaylist = function() {
-      currentPlaylist = player.getPlaylist(options.playlistId);
+      initHandlers(playlist);
     },
 
     // Switches the playlist back to the video the player was initially loaded with
-    unloadPlaylist = function() {
-      currentPlaylist = [options.initialVideo];
+    resetPlaylist = function() {
+      player.setPlaylist('startingPlaylist');
     };
 
     // Initializes all click handlers for the player
-    initHandlers = function() {
-      $('.current-playing-thumbnail').on('click', function(e) {
-        unloadPlaylist();
-        playlistEnabled = false;
-
-        player.playList(currentPlaylist, {
-          getVideoSource: function(vid, cb) {
-            cb(vid.src, vid.poster);
-          }
-        });
-      });
-
+    initHandlers = function(playlist) {
       $('.playlist-video-thumbnail').on('click', function(e) {
         var videoInfo = $(this).data('videoObject');
         playlistEnabled = true;
-        loadPlaylist();
-
-        player.playList(currentPlaylist);
-
-        $.each(currentPlaylist, function(k, video) {
-          if (videoInfo.id == video.id) {
-           player.playByPlaylistIndex(k);
+        $.each(playlist, function(k, video) {
+          if (videoInfo.id === video.id) {
+            player.playByPlaylistIndex(k);
           }
         });
       });
@@ -133,15 +91,7 @@
       });
     }
 
-    // Initialize first playlist, load it, then draw the UI for the playlist
-    unloadPlaylist();
-
-    player.playList(currentPlaylist, {
-      getVideoSource: function(vid, cb) {
-        cb(vid.src, vid.poster);
-      }
-    });
-    drawUi();
-    initHandlers();
+    // Initialize first playlist, load it, then draw the UI for the users playlist
+    resetPlaylist();
   });
 })(jQuery);
