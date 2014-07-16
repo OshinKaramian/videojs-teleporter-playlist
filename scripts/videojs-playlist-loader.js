@@ -38,7 +38,6 @@
         }
       });
       currentPlaylist = playlists[playlist];
-      console.log(currentPlaylist);
       drawUi(currentPlaylist);
     };
 
