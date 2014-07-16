@@ -41,6 +41,10 @@
       drawUi(currentPlaylist);
     };
 
+    videojs.Player.prototype.currentPlaylist = function() {
+      return currentPlaylist;
+    };
+
     videojs.Player.prototype.addVideoToPlaylist = function(user, playlist, video, callback) {
       $.post(playlistCmsBaseUrl + user + '/playlist/' + playlist, JSON.stringify(video))
         .done(function(playlistData) {
