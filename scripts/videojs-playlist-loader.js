@@ -80,9 +80,12 @@
 
     // Handles drawing of the playlist UI (clickable thumbnails);
     var drawUi = function(playlist) {
-      var playlistContainer = $('.' + options.playlistDivClass);
+      try {
+        $('#playlistContainer').remove();
+      } catch(e){}
+      var playlistContainer = $(document.createElement('div'));
+      playlistContainer.attr("id","playlistContainer");;
       playlistContainer.empty();
-      playlistContainer.width = "100%";
       // Build it out for the other videos
       $.each(playlist, function(k, video) {
         var deleteButton = $(document.createElement("div"));
@@ -118,7 +121,7 @@
 
         playlistContainer.append(playlistVideoDiv);
       });
-
+      $('body').append(playlistContainer);
       initHandlers(playlist);
     },
 
@@ -143,10 +146,7 @@
 
       $('.playlist-video-thumbnail-delete').on('click', function(e) {
         var videoInfo = $(this).data('videoObject');
-        console.log(videoInfo);
         player.deleteVideoFromPlaylist(options.socialAccountId, videoInfo, options.playlistId, function(err) {
-          console.log('deleted');
-          console.log(options.playlistId);
           player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
             if (err) {
               console.log(err);
