@@ -10,7 +10,6 @@
     <button id="addToFavorites" onclick="addToFavorites()">Add this page's video to favorites</button>
     <div class ="content">
       <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="auto" height="auto"></video>
-      <div class="playlistControl" style="height:75px; margin-top:10px;"></div>
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -32,7 +31,7 @@
           deletable: false,
           id: '1234'
         },
-        
+
         loadFavorites = function() {
           player.getPlaylist('demouser', 'demoPlaylist', function(error, playlist) {
             player.setPlaylist('demoPlaylist');
@@ -61,7 +60,7 @@
       });
 
       player.on('loadedmetadata', function() {
-        var 
+        var
           overlays = [],
           currentVideo = player.currentPlaylist()[player.currentIndex()],
           nextVideo = player.currentPlaylist()[player.currentIndex()+1],

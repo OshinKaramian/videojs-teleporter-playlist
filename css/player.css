@@ -24,3 +24,7 @@
   padding-right: 10px;
   float: right;
 }
+.playlistContainer {
+  width: 50%;
+  height: 100px;
+}

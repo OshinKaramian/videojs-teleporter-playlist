@@ -1,0 +1,18 @@
+Add Media to Playlist:
+curl -X POST -H 'Content-Type: application/json' -d '{"src": ["http://video.m3u8","http://video.mp4","http://video.webm"],"poster": "http://poster.jpg","id": "video1"}' http://localhost:8082/user/testuser0/playlist/testPlaylist0
+
+Delete Media from Playlist:
+curl -X DELETE http://localhost:8082/user/testuser0/playlist/testPlaylist0/media/video1
+
+Get Playlist:
+curl http://localhost:8082/user/testuser0/playlist/testPlaylist0
+
+Delete Playlist:
+curl -X DELETE http://localhost:8082/user/testuser0/playlist/testPlaylist0
+
+
+curl -X POST -H 'Content-Type: application/json' -d '{"src":["http://stream.flowplayer.org/bauhaus/624x260.webm","http://stream.flowplayer.org/bauhaus/624x260.mp4","http://stream.flowplayer.org/bauhaus/624x260.ogv"],"poster":"http://flowplayer.org/media/img/demos/minimalist.jpg","title":"Video 1","id":"abc"}' http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/demouser/playlist/demoPlaylist
+
+curl -X POST -H 'Content-Type: application/json' -d '{"src":["http://stream.flowplayer.org/night3/640x360.webm","http://stream.flowplayer.org/night3/640x360.mp4","http://stream.flowplayer.org/night3/640x360.ogv"],"poster":"http://flowplayer.org/media/img/demos/playlist/railway_station.jpg","title":"Video 2","id":"d"}' http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/demouser/playlist/demoPlaylist
+
+curl -X POST -H 'Content-Type: application/json' -d '{"src":["http://stream.flowplayer.org/functional/624x260.webm","http://stream.flowplayer.org/functional/624x260.mp4","http://stream.flowplayer.org/functional/624x260.ogv"],"poster":"http://flowplayer.org/media/img/demos/functional.jpg","title":"Video 3","id":"ef"}' http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/demouser/playlist/demoPlaylist
