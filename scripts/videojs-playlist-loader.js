@@ -46,6 +46,10 @@
     };
 
     videojs.Player.prototype.addVideoToPlaylist = function(user, playlist, video, callback) {
+      if (video.hasOwnProperty('deletable') ) {
+        delete video.deletable;
+      }
+
       $.post(playlistCmsBaseUrl + user + '/playlist/' + playlist, JSON.stringify(video))
         .done(function(playlistData) {
           playlists[playlist] = playlistData;
@@ -58,6 +62,19 @@
     };
 
     videojs.Player.prototype.deleteVideoFromPlaylist = function(user, video, playlist, callback) {
+      $.ajax({
+          url: playlistCmsBaseUrl + user + '/playlist/' + playlist + '/media/' + video.id,
+          type: 'DELETE',
+          timeout: 2000,
+          dataType: 'json'
+        })
+        .complete(function(jqXHR, textStatus) {
+          callback(null);
+        })
+        .fail (function(jqxhr, textStatus, error) {
+          var err = textStatus + ", " + error;
+          callback( "Request for delete media failed: " + err);
+        });
     };
     // End of API Methods
 
@@ -68,13 +85,40 @@
       playlistContainer.width = "100%";
       // Build it out for the other videos
       $.each(playlist, function(k, video) {
+        var deleteButton = $(document.createElement("div"));
+
+        deleteButton.css({ 'height':'30px',
+          'width':'30px',
+          'line-height':'30px',
+          'text-align':'center',
+          'font-size':'25px',
+          'background-color':'red',
+          'color': 'white',
+          'position':'absolute'
+        });
+        deleteButton.addClass('playlist-video-thumbnail-delete');
+        deleteButton.data('videoObject' , video);
+        deleteButton.text('-');
+
         var playlistVideoDiv = $(document.createElement("div"));
         playlistVideoDiv.addClass('playlist-video-thumbnail');
         playlistVideoDiv.data('videoObject' , video);
-        playlistVideoDiv.css({'float':'left'});
-        playlistVideoDiv.append('<img height="100%" src="' + video.poster  + '"/>');
+        playlistVideoDiv.css({
+          'background-size':'175px 75px',
+          'float':'left',
+          'width':'175px',
+          'height':'75px',
+          'background-image':'url(' + video.poster + ')',
+          'background-repeat':'no-repeat'
+        });
+
+        if (video.deletable || video.deletable == undefined) {
+          playlistVideoDiv.append(deleteButton);
+        }
+
         playlistContainer.append(playlistVideoDiv);
       });
+
       initHandlers(playlist);
     },
 
@@ -86,12 +130,29 @@
     // Initializes all click handlers for the player
     initHandlers = function(playlist) {
       $('.playlist-video-thumbnail').on('click', function(e) {
+        if (e.target.className == 'playlist-video-thumbnail') {
+          var videoInfo = $(this).data('videoObject');
+          playlistEnabled = true;
+          $.each(playlist, function(k, video) {
+            if (videoInfo.id === video.id) {
+              player.playByPlaylistIndex(k);
+            }
+          });
+        }
+      });
+
+      $('.playlist-video-thumbnail-delete').on('click', function(e) {
         var videoInfo = $(this).data('videoObject');
-        playlistEnabled = true;
-        $.each(playlist, function(k, video) {
-          if (videoInfo.id === video.id) {
-            player.playByPlaylistIndex(k);
-          }
+        console.log(videoInfo);
+        player.deleteVideoFromPlaylist(options.socialAccountId, videoInfo, options.playlistId, function(err) {
+          console.log('deleted');
+          console.log(options.playlistId);
+          player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
+            if (err) {
+              console.log(err);
+            };
+            player.setPlaylist(options.playlistId);
+          });
         });
       });
 
