@@ -8,14 +8,12 @@
 .vjs-overlay,
 .vjs-overlay.vjs-overlay-top-left {
   position: absolute;
-  width: 46.1%;
+  width: 100%;
   background-color: #140009; /* IE8 fallback */
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
-  padding: 10px;
   border-radius: 0px;
-  top: 5px;
-  left: 5px;
+  padding-top: 5px;
   text-align: left;
 }
 

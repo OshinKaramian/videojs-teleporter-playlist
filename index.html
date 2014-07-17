@@ -9,7 +9,7 @@
     <button id="loadFavorites" onclick="loadFavorites()">Load Playlist</button>
     <button id="addToFavorites" onclick="addToFavorites()">Add this page's video to favorites</button>
     <div class ="content">
-      <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="640" height="264"></video>
+      <video id="video" class="video-js vjs-default-skin" controls data-setup="" width="auto" height="auto"></video>
       <div class="playlistControl" style="height:75px; margin-top:10px;"></div>
     </div>
 
@@ -63,31 +63,26 @@
         var 
           overlays = [],
           currentVideo = player.currentPlaylist()[player.currentIndex()],
-          nextVideo = player.currentPlaylist()[player.currentIndex()+1];
+          nextVideo = player.currentPlaylist()[player.currentIndex()+1],
+          topBanner = '<span class="playingBanner"><span class="overlayTextTitle nowPlaying">Now Playing: </span><span class="overlayTextVideo">' + currentVideo.title + '</span></span>';
+
+        if (nextVideo) {
+          topBanner = '</span class="playingBanner"><span class="overlayTextTitle nowPlaying">Now Playing: </span><span class="overlayTextVideo">' + currentVideo.title + '</span><span class="overlayTextVideo nextInQueueVideo">' + nextVideo.title + '</span><span class="overlayTextTitle nextInQueue">next in queue: </span></span>'
+        }
 
         removeAllOverlays();
         if (currentVideo) {
-          currentOverlay = {
-            start: 'pause',
-            end: 'playing',
-            content: '<span class="overlayTextTitle">Now Playing: </span><span class="overlayTextVideo">' + currentVideo.title + '</span>',
-            align: 'top-left'
-          };
-          overlays.push(currentOverlay);
+          player.overlay({
+            overlays: [{
+              start: 'pause',
+              end: 'playing',
+              content: topBanner,
+              align: 'top-left'
+            }]
+          });
         }
-        if (nextVideo) {
-          nextOverlay = {
-            start: 'pause',
-            end: 'playing',
-            content: '<span class="overlayTextTitle">next in queue: </span><span class="overlayTextVideo">' + nextVideo.title + '</span>',
-            align: 'top-right'
-          };
-          overlays.push(nextOverlay);
-        }
-        player.overlay({
-          overlays: overlays
-        });
       });
     </script>
   </body>
 </html>
+
