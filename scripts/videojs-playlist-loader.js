@@ -60,7 +60,7 @@
       }
       $.post(playlistCmsBaseUrl + user + '/playlist/' + playlist, JSON.stringify(video))
         .done(function(playlistData) {
-          playlists[playlist] = playlistData;
+          playlists[playlist].push(video);
           callback(null, playlist, video);
         })
         .fail (function(jqxhr, textStatus, error) {
@@ -73,7 +73,7 @@
       $.ajax({
           url: playlistCmsBaseUrl + user + '/playlist/' + playlist + '/media/' + video.id,
           type: 'DELETE',
-          timeout: 2000,
+          timeout: 1,
           dataType: 'json'
         })
         .complete(function(jqXHR, textStatus) {
@@ -83,6 +83,10 @@
           var err = textStatus + ", " + error;
           //callback( "Request for delete media failed: " + err);
         });
+        for (var i = 0; i < playlists[playlist].length; i++) {
+          if (playlists[playlist][i].id === video.id)
+            playlists[playlist].splice(i,1);
+        }
     };
     // End of API Methods
 /*
@@ -109,8 +113,13 @@
           var
             playlist = options.playlistId,
             video = options.initialVideo;
+            
+          for (var i = 0; i < playlists[playlist].length; i++) {
+            if (playlists[playlist][i].id === video.id)
+              return;
+          }
 
-          if(!playlists[playlist].video) {
+          if(!playlists[playlist][video]) {
             player.addVideoToPlaylist(options.socialAccountId, options.playlistId, options.initialVideo, function(error, playlistData, addedVideo) {
               drawVideoThumbnail(addedVideo);
             })
@@ -215,7 +224,9 @@
 
       $('.playlist-video-thumbnail-delete').on('click', function(e) {
         var videoInfo = $(this).data('videoObject');
-        $('#'+videoInfo.id).fadeOut();
+        $('#'+videoInfo.id).fadeOut(1000, function(){
+          $('#'+videoInfo.id).remove();
+        });
         player.deleteVideoFromPlaylist(options.socialAccountId, videoInfo, options.playlistId, function(err) {
           /*player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
             if (err) {
