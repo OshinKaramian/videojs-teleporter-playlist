@@ -96,7 +96,7 @@
             className: 'vjs-addcurrentvideo-control vjs-control',
             role: 'button',
             'aria-live': 'polite',
-            innerHTML: '<div class="vjs-control-content"></div>'
+            innerHTML: '<div class="vjs-control-content"><i class="fa fa-file-video-o fa-2x"></i></div>'
           })
         });
 
@@ -125,7 +125,7 @@
             className: 'vjs-playlist-control vjs-control',
             role: 'button',
             'aria-live': 'polite',
-            innerHTML: '<div class="vjs-control-content"></div>'
+            innerHTML: '<div class="vjs-control-content"><i class="fa fa-film fa-2x"></i></div>'
           })
         });
 
