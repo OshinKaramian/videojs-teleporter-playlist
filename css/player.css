@@ -25,6 +25,26 @@
   float: right;
 }
 .playlistContainer {
-  width: 50%;
+  z-index: 1000;
   height: 100px;
+  position:absolute;
+  bottom:30px;
+}
+.vjs-addcurrentvideo-control {
+  -webkit-box-ordinal-group: 5;
+  -moz-box-ordinal-group: 5;
+  -webkit-order: 5;
+  -ms-flex-order: 5;
+  -ms-order: 5;
+  order: 5;
+  top:5px;
+}
+.vjs-playlist-control {
+  -webkit-box-ordinal-group: 5;
+  -moz-box-ordinal-group: 5;
+  -webkit-order: 5;
+  -ms-flex-order: 5;
+  -ms-order: 5;
+  order: 5;
+  top:5px;
 }
