@@ -163,15 +163,6 @@
       $.each(playlist, function(k, video) {
         var deleteButton = $(document.createElement("div"));
 
-        deleteButton.css({ 'height':'30px',
-          'width':'30px',
-          'line-height':'30px',
-          'text-align':'center',
-          'font-size':'25px',
-          'background-color':'red',
-          'color': 'white',
-          'position':'absolute'
-        });
         deleteButton.addClass('playlist-video-thumbnail-delete');
         deleteButton.data('videoObject' , video);
         deleteButton.text('-');
@@ -180,14 +171,7 @@
         playlistVideoDiv.addClass('playlist-video-thumbnail');
         playlistVideoDiv.data('videoObject' , video);
         playlistVideoDiv.attr('role' ,'button');
-        playlistVideoDiv.css({
-          'background-size':'150px 75px',
-          'float':'left',
-          'width':'150px',
-          'height':'75px',
-          'background-image':'url(' + video.poster + ')',
-          'background-repeat':'no-repeat'
-        });
+        playlistVideoDiv.css({'background-image':'url(' + video.poster + ')'});
 
         if (video.deletable || video.deletable == undefined) {
           playlistVideoDiv.append(deleteButton);
