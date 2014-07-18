@@ -30,6 +30,23 @@
   position:absolute;
   bottom:30px;
 }
+.playlist-video-thumbnail-delete {
+  height: 30px;
+  width : 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 25px;
+  background-color : red;
+  color: white;
+  position:absolute;
+}
+.playlist-video-thumbnail {
+  background-size: 150px 75px;
+  float: left;
+  width: 150px;
+  height: 75px;
+  background-repeat: no-repeat;
+}
 .vjs-addcurrentvideo-control {
   -webkit-box-ordinal-group: 5;
   -moz-box-ordinal-group: 5;
