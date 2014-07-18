@@ -101,10 +101,15 @@
         });
 
         // Bind touchstart for mobile browsers and prevent default
-/*        this.on('touchstart', function(e) {
+        this.on('touchstart', function(e) {
           e.preventDefault();
+          player.addVideoToPlaylist(options.socialAccountId, options.playlistId, options.initialVideo, function(error, playlistData) {
+            player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
+              player.setPlaylist(options.playlistId);
+            })
+          })
         });
-*/
+
         // Bind click event for desktop browsers
         this.on('click', function() {
           player.addVideoToPlaylist(options.socialAccountId, options.playlistId, options.initialVideo, function(error, playlistData) {
@@ -130,10 +135,22 @@
         });
 
         // Bind touchstart for mobile browsers and prevent default
-/*        this.on('touchstart', function(e) {
+        this.on('touchstart', function(e) {
           e.preventDefault();
+          if ($('.playlistContainer').length <= 0) {
+            $('.playlistContainer').remove();
+            player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
+              if (err) {
+                console.log(err);
+              };
+              player.setPlaylist(options.playlistId);
+
+            });
+          } else {
+            $('.playlistContainer').remove();
+          }
         });
-*/
+
         // Bind click event for desktop browsers
         this.on('click', function() {
           if ($('.playlistContainer').length <= 0) {
