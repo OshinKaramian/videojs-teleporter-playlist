@@ -7,13 +7,16 @@
    *   accountId: videoCloud account ID
    *   playlistId: Playlist that these videos should be associated with
    */
+  var playlistHasLoaded = false;
 
   videojs.plugin('mockCmsPlaylistLoader', function(options) {
     var player = this,
+    video = this.el(),
     playlistCmsBaseUrl = 'http://ec2-107-20-72-18.compute-1.amazonaws.com:8082/user/',
     playlistEnabled = false,
     startingPlaylist = [options.initialVideo],
-    currentPlaylist = startingPlaylist;
+    currentPlaylist = startingPlaylist,
+    currentPlaylistId;
     playlists = {
       startingPlaylist: startingPlaylist
     };
@@ -31,14 +34,20 @@
         });
     };
 
-    videojs.Player.prototype.setPlaylist = function(playlist, video) {
-      player.playList(playlists[playlist], {
-        getVideoSource: function(vid, cb) {
-          cb(vid.src, vid.poster);
-        }
-      });
+    videojs.Player.prototype.setPlaylist = function(playlist, force) {
+      if ((currentPlaylistId != options.playlistId) || force) {
+        player.playList(playlists[playlist], {
+          getVideoSource: function(vid, cb) {
+            cb(vid.src, vid.poster);
+          }
+        });
+      }
       currentPlaylist = playlists[playlist];
-      drawUi(currentPlaylist);
+      currentPlaylistId = playlist;
+      if (playlist !== "startingPlaylist") {
+        drawUi(currentPlaylist);
+        initHandlers(currentPlaylist);
+      }
     };
 
     videojs.Player.prototype.currentPlaylist = function() {
@@ -73,19 +82,83 @@
         })
         .fail (function(jqxhr, textStatus, error) {
           var err = textStatus + ", " + error;
-          callback( "Request for delete media failed: " + err);
+          //callback( "Request for delete media failed: " + err);
         });
     };
     // End of API Methods
+/*
+     *
+     */
+    AddCurrentVideoButton = videojs.AddCurrentVideoButton = videojs.Button.extend({
+      init: function(player, settings) {
+        videojs.Button.call(this, player, {
+          el: videojs.Button.prototype.createEl.call(this, 'div', {
+            className: 'vjs-addcurrentvideo-control vjs-control',
+            role: 'button',
+            'aria-live': 'polite',
+            innerHTML: '<div class="vjs-control-content"></div>'
+          })
+        });
+
+        // Bind touchstart for mobile browsers and prevent default
+/*        this.on('touchstart', function(e) {
+          e.preventDefault();
+        });
+*/
+        // Bind click event for desktop browsers
+        this.on('click', function() {
+          player.addVideoToPlaylist(options.socialAccountId, options.playlistId, options.initialVideo, function(error, playlistData) {
+            player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
+              player.setPlaylist(options.playlistId);
+            })
+          })
+        });
+      }
+    });
+    /*
+     *
+     */
+    PlaylistButton = videojs.PlaylistButton = videojs.Button.extend({
+      init: function(player, settings) {
+        videojs.Button.call(this, player, {
+          el: videojs.Button.prototype.createEl.call(this, 'div', {
+            className: 'vjs-playlist-control vjs-control',
+            role: 'button',
+            'aria-live': 'polite',
+            innerHTML: '<div class="vjs-control-content"></div>'
+          })
+        });
+
+        // Bind touchstart for mobile browsers and prevent default
+/*        this.on('touchstart', function(e) {
+          e.preventDefault();
+        });
+*/
+        // Bind click event for desktop browsers
+        this.on('click', function() {
+          if ($('.playlistContainer').length <= 0) {
+            $('.playlistContainer').remove();
+            player.getPlaylist(options.socialAccountId, options.playlistId, function(err, playlist) {
+              if (err) {
+                console.log(err);
+              };
+              player.setPlaylist(options.playlistId);
+
+            });
+          } else {
+            $('.playlistContainer').remove();
+          }
+        });
+      }
+    });
 
     // Handles drawing of the playlist UI (clickable thumbnails);
     var drawUi = function(playlist) {
-      try {
-        $('#playlistContainer').remove();
-      } catch(e){}
+
       var playlistContainer = $(document.createElement('div'));
-      playlistContainer.attr("id","playlistContainer");;
+      playlistContainer.addClass("playlistContainer");
       playlistContainer.empty();
+
       // Build it out for the other videos
       $.each(playlist, function(k, video) {
         var deleteButton = $(document.createElement("div"));
@@ -106,10 +179,11 @@
         var playlistVideoDiv = $(document.createElement("div"));
         playlistVideoDiv.addClass('playlist-video-thumbnail');
         playlistVideoDiv.data('videoObject' , video);
+        playlistVideoDiv.attr('role' ,'button');
         playlistVideoDiv.css({
-          'background-size':'175px 75px',
+          'background-size':'150px 75px',
           'float':'left',
-          'width':'175px',
+          'width':'150px',
           'height':'75px',
           'background-image':'url(' + video.poster + ')',
           'background-repeat':'no-repeat'
@@ -121,8 +195,7 @@
 
         playlistContainer.append(playlistVideoDiv);
       });
-      $('body').append(playlistContainer);
-      initHandlers(playlist);
+      $(video).prepend(playlistContainer);
     },
 
     // Switches the playlist back to the video the player was initially loaded with
@@ -151,6 +224,7 @@
             if (err) {
               console.log(err);
             };
+            $('.playlistContainer').remove();
             player.setPlaylist(options.playlistId);
           });
         });
@@ -165,6 +239,9 @@
         player.next();
       });
     }
+
+    player.controlBar.playlistButton = player.controlBar.addChild('PlaylistButton');
+    player.controlBar.addCurrentVideoButton = player.controlBar.addChild('AddCurrentVideoButton');
 
     // Initialize first playlist, load it, then draw the UI for the users playlist
     resetPlaylist();
